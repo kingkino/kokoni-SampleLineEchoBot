@@ -41,7 +41,10 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
         {
             // メッセージタイプを取得、テキスト以外はエラー文言を返却
             messageType = item.message.type.ToString();
-            echoWord = item.message.text.ToString();
+            if(item.message.text != null)
+            {
+                echoWord = item.message.text.ToString();
+            }
         }
     }
 

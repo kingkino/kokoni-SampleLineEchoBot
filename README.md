@@ -1,6 +1,8 @@
+・AzureDeploy
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net?repository=https://github.com/kingkino/kokoni-SmapleLineEchoBot)
 
-
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkingkino%2Fkokoni-SmapleLineEchoBot%2Fmaster%2Flinebot.json)
+・DirectPortalDeploy
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkingkino%2Fkokoni-SmapleLineEchoBot%2Fmaster%2FAzureDeploy.json)
 
 # kokoni-SmapleLineEchoBot
 

@@ -1,6 +1,6 @@
 
 
-# kokoni-SmapleLineEchoBot
+# kokoni-SampleLineEchoBot
 
 ## 前提
 

@@ -20,6 +20,9 @@ AzureFunctionsの環境構築方法は下記を参考にしてください。
 
 ## カスタムデプロイ
 
+ARMテンプレートによるカスタムデプロイリンクで環境構築できるようにしました。
+下記のリンクをクリックしてデプロイ環境を構築してみてください。
+
 |デプロイ方法|デプロイリンク|
 | --------------- |:---------------:|
 | Direct Portal Deploy | [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkingkino%2Fkokoni-SmapleLineEchoBot%2Fmaster%2FAzureDeploy.json) |

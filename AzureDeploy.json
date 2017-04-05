@@ -1,91 +1,83 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "http://schemas.management.azure.com/schemas/2015-01-01-preview/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccounts_samplelinebot_name": {
-            "defaultValue": "samplelinebot",
-            "type": "String"
+        "appName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create."
+            }
         },
-        "serverfarms_JapanEastPlan_name": {
-            "defaultValue": "JapanEastPlan",
-            "type": "String"
-        },
-        "sites_sample_linebot_name": {
-            "defaultValue": "sample-linebot",
-            "type": "String"
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_ZRS",
+                "Premium_LRS"
+            ],
+            "metadata": {
+                "description": "Storage Account type"
+            }
         }
     },
-    "variables": {},
+    "variables": {
+        "functionAppName": "[parameters('appName')]",
+        "hostingPlanName": "[parameters('appName')]",
+        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]"
+    },
     "resources": [
         {
-            "comments": "リソース '/subscriptions/b70049f2-c132-422f-9143-a98ebb0ea9ae/resourceGroups/sample-linbot/providers/Microsoft.Storage/storageAccounts/samplelinebot' から一般化されました。",
             "type": "Microsoft.Storage/storageAccounts",
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "kind": "Storage",
-            "name": "[parameters('storageAccounts_samplelinebot_name')]",
-            "apiVersion": "2016-01-01",
-            "location": "japaneast",
-            "tags": {},
-            "properties": {},
-            "dependsOn": []
+            "name": "[variables('storageAccountName')]",
+            "apiVersion": "2015-06-15",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "accountType": "[parameters('storageAccountType')]"
+            }
         },
         {
-            "comments": "リソース '/subscriptions/b70049f2-c132-422f-9143-a98ebb0ea9ae/resourceGroups/Sample-Linbot/providers/Microsoft.Web/serverfarms/JapanEastPlan' から一般化されました。",
             "type": "Microsoft.Web/serverfarms",
-            "sku": {
-                "name": "Y1",
-                "tier": "Dynamic",
-                "size": "Y1",
-                "family": "Y",
-                "capacity": 0
-            },
-            "kind": "functionapp",
-            "name": "[parameters('serverfarms_JapanEastPlan_name')]",
-            "apiVersion": "2015-08-01",
-            "location": "Japan East",
+            "apiVersion": "2015-04-01",
+            "name": "[variables('hostingPlanName')]",
+            "location": "[resourceGroup().location]",
             "properties": {
-                "name": "[parameters('serverfarms_JapanEastPlan_name')]",
-                "numberOfWorkers": 0
-            },
-            "dependsOn": []
+                "name": "[variables('hostingPlanName')]",
+                "computeMode": "Dynamic",
+                "sku": "Dynamic"
+            }
         },
         {
-            "comments": "リソース '/subscriptions/b70049f2-c132-422f-9143-a98ebb0ea9ae/resourceGroups/Sample-Linbot/providers/Microsoft.Web/sites/sample-linebot' から一般化されました。",
-            "type": "Microsoft.Web/sites",
-            "kind": "functionapp",
-            "name": "[parameters('sites_sample_linebot_name')]",
             "apiVersion": "2015-08-01",
-            "location": "Japan East",
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('functionAppName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp",
             "properties": {
-                "name": "[parameters('sites_sample_linebot_name')]",
-                "hostNames": [
-                    "sample-linebot.azurewebsites.net"
-                ],
-                "enabledHostNames": [
-                    "sample-linebot.azurewebsites.net",
-                    "sample-linebot.scm.azurewebsites.net"
-                ],
-                "hostNameSslStates": [
-                    {
-                        "name": "[concat(parameters('sites_sample_linebot_name'),'.azurewebsites.net')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    },
-                    {
-                        "name": "[concat(parameters('sites_sample_linebot_name'),'.scm.azurewebsites.net')]",
-                        "sslState": 0,
-                        "thumbprint": null,
-                        "ipBasedSslState": 0
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_JapanEastPlan_name'))]"
+                "name": "[variables('functionAppName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_JapanEastPlan_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "resources": [
+                {
+                    "apiVersion": "2016-03-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                    ],
+                    "properties": {
+                        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listkeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1,';')]",
+                        "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listkeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1,';')]",
+                        "FUNCTIONS_EXTENSION_VERSION": "latest",
+                        "command": "deploy.cmd"
+                    }
+                }
             ]
         }
     ]
